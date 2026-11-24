@@ -8,8 +8,7 @@ Paper alignment — verified 2026-11-24 against the paper itself
 Realistic, Contamination-Free Reverse Engineering Benchmark", SRE-Bench;
 see paper-five-steps-verified.md at the repo root):
 
-- The paper does NOT contain five protection steps. "Five" in the paper
-  is the five RE domains (network protocols, firmware, games, format
+- Five RE domains (network protocols, firmware, games, format
   parsers, malware). The "five steps" claim was a misreading of those
   domains, and no weight in this scorer is aligned to it.
 - What the paper actually has: 44 protection primitives in nine
