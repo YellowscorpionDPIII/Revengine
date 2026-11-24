@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "revengine"
+version = "0.1.0"
+description = "Measure how reversible a build is to AI-assisted analysis. Scorer ships; probe stays internal."
+license = "Apache-2.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+revengine = "revengine.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["revengine*"]
