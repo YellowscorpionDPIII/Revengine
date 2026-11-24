@@ -6,7 +6,8 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from revengine.checks import analyze
-from revengine.scorer import score
+from revengine.scorer import (FAMILIES, FAMILY_MAP, PRESETS,
+                              UNMEASURED_FAMILIES, WEIGHTS, score)
 from fixtures import build_elf, PT_GNU_RELRO, PT_GNU_STACK
 
 
@@ -62,6 +63,50 @@ class TestScorer(unittest.TestCase):
             os.unlink(path)
         self.assertIn("symbols", result.unknown)
         self.assertIn("debug", result.unknown)
+
+    # Paper alignment (arXiv:2608.11469 v2, §3): the mapping from
+    # checks to the paper's nine technique families must stay complete
+    # and honest — every check mapped, every family accounted for
+    # exactly once between measured and unmeasured.
+    def test_paper_mapping_covers_every_check(self):
+        self.assertEqual(set(FAMILY_MAP), set(WEIGHTS))
+        measured = set()
+        for families in FAMILY_MAP.values():
+            for fam in families:
+                self.assertIn(fam, FAMILIES)
+                measured.add(fam)
+        self.assertTrue(set(UNMEASURED_FAMILIES).isdisjoint(measured))
+        self.assertEqual(measured | set(UNMEASURED_FAMILIES),
+                         set(FAMILIES))
+        self.assertEqual(len(FAMILIES), 9)
+        self.assertEqual(len(PRESETS), 8)
+
+    def test_paper_weights_sum_to_100(self):
+        # A binary failing every check scores exactly 100; weights
+        # must not drift silently.
+        self.assertEqual(sum(WEIGHTS.values()), 100)
+
+    def test_score_reports_paper_families(self):
+        payload = (b"https://internal.example.com/admin "
+                   b"/home/dennis/build/secret-config")
+        data = build_elf([".symtab", ".debug_info"], e_type=2,
+                         trailing=payload)
+        path = _write_temp(data)
+        try:
+            result = score(analyze(path))
+        finally:
+            os.unlink(path)
+        self.assertEqual(result.paper["debug"], ["F1"])
+        self.assertEqual(result.paper["strings"], ["F1", "F3"])
+        # Every reported family is a real paper family, and every
+        # failed check appears in the mapping.
+        for check_id, families in result.paper.items():
+            self.assertIn(check_id, result.failed)
+            for fam in families:
+                self.assertIn(fam, FAMILIES)
+        # Generic-hardening checks carry no paper family.
+        if "pie" in result.paper:
+            self.assertEqual(result.paper["pie"], [])
 
 
 if __name__ == "__main__":

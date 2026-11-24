@@ -27,9 +27,30 @@ credential-like patterns — values redacted), PIE, RELRO, executable
 stack, content entropy, exported dynamic symbols. Unknowns are reported
 as unknown, never scored as safe.
 
-Weights are v0 heuristics. TODO: align them with the five protection
-steps in the Anthropic/OpenAI/Google reverse-engineering paper
-(arXiv 2608.11469) once verified against the paper itself.
+Weights are v0 heuristics, each tied to the paper's taxonomy with a
+stated rationale (see `scorer.py`). The paper is arXiv 2608.11469 v2
+(SRE-Bench): **there are no "five protection steps" in it** — that was
+a misreading of the paper's five RE domains (network protocols,
+firmware, games, format parsers, malware). What the paper actually
+has is 44 protection primitives in nine technique families (§3) and
+eight presets P1–P8 (Table 6, §B.9). Verified against the paper
+itself; see `paper-five-steps-verified.md`.
+
+| check | weight | paper families evidenced when failed |
+|---|---|---|
+| debug sections | 25 | F1 — obfuscation and string deception |
+| symbol table | 20 | F1 |
+| sensitive strings | 15 | F1, F3 — string deception; residency minimization |
+| dynamic symbols | 10 | F1 |
+| content readability (entropy) | 10 | F2, F3 — authenticated encryption; lazy decryption |
+| PIE / RELRO / exec stack | 5 / 5 / 10 | none — generic hardening, no paper family |
+
+Honest gap: only F1–F3 are measurable by static ELF checks. F4–F9
+(measurement-keyed anti-debugging, self-checksumming, online
+licensing, loader virtualization, anti-dump, anti-re-hosting) are
+runtime / server-side properties a static scan cannot see, and
+presets P5–P8 need an off-box key and server logic. A low score means
+"no static exposure found", not "P8-grade protection".
 
 ## Install & run
 
@@ -60,7 +81,7 @@ calls, ever.
 python3 -m unittest discover -s tests -v
 ```
 
-20 tests, all stdlib, synthetic ELF fixtures built in-memory (no
+23 tests, all stdlib, synthetic ELF fixtures built in-memory (no
 compiler needed). Also smoke-tested against a real system binary.
 
 ## Layout
@@ -82,5 +103,5 @@ tests/          fixtures + unit tests
 
 v0.1 starter, written 2026-11-18. Next: real-binary validation set
 (before/after hardening pairs), Mach-O/PE parsers, and aligning weights
-with the paper's five steps. Live at
-github.com/YellowscorpionDPIII/Revengine.
+with the paper's nine families and eight presets (arXiv 2608.11469 v2).
+Live at github.com/YellowscorpionDPIII/Revengine.
