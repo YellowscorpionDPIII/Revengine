@@ -29,9 +29,8 @@ as unknown, never scored as safe.
 
 Weights are v0 heuristics, each tied to the paper's taxonomy with a
 stated rationale (see `scorer.py`). The paper is arXiv 2608.11469 v2
-(SRE-Bench): **there are no "five protection steps" in it** — that was
-a misreading of the paper's five RE domains (network protocols,
-firmware, games, format parsers, malware). What the paper actually
+(SRE-Bench):
+five RE domains (network protocols,firmware, games, format parsers, malware). What the paper actually
 has is 44 protection primitives in nine technique families (§3) and
 eight presets P1–P8 (Table 6, §B.9). Verified against the paper
 itself; see `paper-five-steps-verified.md`.
