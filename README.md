@@ -71,7 +71,7 @@ REVENGINE_LLM_URL=http://127.0.0.1:8080/completion \
 ```
 
 The model sees finding summaries only, never raw binary bytes, and must
-cite finding ids. Point it at the Nano's llama.cpp server. No cloud
+cite finding ids. Point it at llama.cpp server. No cloud
 calls, ever.
 
 ## Tests
